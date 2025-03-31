@@ -1,0 +1,107 @@
+-- SELECT 기본 문법
+USE codingon_db;
+
+SELECT * FROM class; -- *는 "모든 컬럼"을 의미
+SELECT * FROM student;
+
+-- 일부 컬럼만 선택
+SELECT class_name, category FROM class;
+SELECT name, age, gender FROM student;
+
+-- alias(별칭)
+SELECT name, age, gender as 성별 from student;
+SELECT class_name 반이름, category 분류 FROM class;
+
+-- WHERE
+SELECT * FROM student WHERE name = "이지은";
+SELECT * FROM student wHERE student_id = 10;
+
+SELECT name, age FROM student
+where age >= 25;
+
+SELECT name, age FROM student
+where age >= 25 AND age <= 27;
+
+SELECT name, age FROM student
+WHERE age BETWEEN 25 and 27;
+
+SELECT name, age FROM student
+WHERE age > 27 OR age < 22;
+
+SELECT name, age FROM student
+WHERE class_id = 'CLS01' or class_id = 'CLS02' or class_id = 'CLS03';
+
+SELECT name, age FROM student
+WHERE class_id IN ('CLS01','CLS02','CLS03');
+
+SELECT * FROM student
+WHERE name LIKE "이%";
+
+SELECT * FROM class
+WHERE category LIKE '%엔드';
+
+SELECT * FROM student
+WHERE join_date LIKE '%04%';
+
+-- 정렬 
+SELECT name, age FROM student
+ORDER BY age;
+
+SELECT class_id, class_name, start_date FROM class
+ORDER BY start_date;
+
+SELECT class_id, class_name, start_date FROM class
+ORDER BY class_name DESC;
+
+SELECT class_id, class_name, start_date FROM class
+WHERE category LIKE "%엔드%"
+ORDER BY start_date DESC;
+
+SELECT name, gender FROM student
+ORDER BY gender, name;
+
+-- LIMIT
+SELECT * FROM student
+LIMIT 3;
+
+SELECT class_id, class_name, start_date
+FROM class
+ORDER BY start_date DESC
+LIMIT 3;
+
+SELECT class_id, class_name, start_date
+FROM class
+ORDER BY start_date DESC
+LIMIT 1, 2;
+
+SELECT name, age FROM student
+WHERE age IS NULL;
+
+SELECT name, age FROM student
+WHERE age IS NOT NULL;
+
+SELECT distinct gender FROM student;
+
+-- 6. Group By, Having
+USE my_shop;
+
+SELECT cust_id, amout FROM orders ORDER BY cust_id;
+SELECT cust_id "고객 아이디", sum(amount) "총 구매 개수" FROM orders group by cust_id;
+
+SELECT cust_id "고객 아이디", sum(amount * price)   "총 구매 개수" FROM orders
+group by cust_id
+ORDER BY sum(amount * price) DESC;
+
+SELECT cust_id "고객 아이디", avg(amount) "평균 구매 개수"
+FROM orders GROUP BY cust_id;
+
+SELECT COUNT(*) FROM customer;
+
+USE codingon_db;
+SELECT COUNT(*) "나이가 입력된 수" FROM student
+WHERE age IS NOT NULL;
+
+SELECT cust_id "고객 아이디", sum(price * amount) "총 구매 금액"
+from orders
+group by cust_id;
+HAVING sum(price * amount) > 370000
