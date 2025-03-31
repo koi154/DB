@@ -1,0 +1,34 @@
+USE codingon_db;
+
+SELECT class_id, COUNT(*) AS student_count
+FROM student
+group by class_id;
+
+SELECT gender,AVG(age) AS avg_age
+FROM student
+group by gender;
+
+SELECT gender, AVG(age) AS avg_age
+FROM student
+group by gender
+HAVING AVG(age) >=26;
+
+SELECT class_id, MIN(join_date) AS first_join
+FROM student
+group by class_id;
+
+SELECT class_id, MIN(age) AS min_age
+FROM student
+group by class_id
+HAVING AVG(age) >=25;
+
+SELECT gender, (MAX(age) - MIN(age)) AS age_gap
+FROM student
+GROUP BY gender
+HAVING age_gap >= 3;
+
+SELECT class_id, AVG(age) AS avg_age
+FROM student
+GROUP BY class_id
+HAVING avg_age >= 24
+ORDER BY avg_age DESC;
