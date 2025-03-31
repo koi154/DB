@@ -1,0 +1,26 @@
+SELECT name, gender FROM Student
+where age >= 25;
+
+SELECT distinct class_id FROM student;
+
+SELECT name, age FROM student
+WHERE gender LIKE '남'
+ORDER BY age ASC;
+
+SELECT name, class_id FROM student
+WHERE name LIKE "이%";
+
+SELECT * FROM student
+WHERE age IS NULL;
+
+SELECT * FROM student
+WHERE join_date BETWEEN '2024-03-01' AND '2024-04-30';
+
+SELECT * FROM class
+ORDER BY start_date DESC
+LIMIT 0, 3;
+
+SELECT name FROM student
+WHERE class_id IN ('CLS01','CLS02','CLS03') AND (name LIKE '%정%' OR name LIKE '%영%')
+ORDER BY name;
+
