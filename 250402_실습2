@@ -1,0 +1,111 @@
+USE function_db;
+
+-- 문자 함수
+-- CONCAT 문자열 결합
+SELECT name, birth_date, 
+	concat(name, " ( " ,birth_date," ) ") name_with_birth
+FROM users;
+
+-- LEFT 일부 문자열 추출 (왼쪽부터)
+select product_name, LEFT(product_name, 2)
+FROM products;
+
+-- SUBSTRING 지정한 위치에서 문자열 추출
+select name, SUBSTRING(name, 2, 2) first_name
+FROM users;
+
+-- SUBSTRING_INDEX
+SELECT product_name, SUBSTRING_INDEX(product_name, " ", 2) -- 숫자에 따른 공백 
+FROM products;
+
+
+-- UPPER 대문자 변환
+SELECT name, email, UPPER(email) upper_email
+FROM users;
+
+-- REPLACE 일부 문자열을 변경
+SELECT name, REPLACE(name, '이', 'LEE') replace_name
+FROM users;
+
+-- 실습1. 문자열 함수(1)
+USE function_db;
+
+-- 1. 사용자 이름과 이메일을 결합하여 "홍길동(hong@example.com)" 형식으로 출력하시오.
+SELECT name, email, 
+	concat(name, " ( " ,email," ) ") formatted_contact
+FROM users;
+
+--  2. 이메일 주소에서 도메인(@ 뒤 문자열)만 추출하여 email_domain컬럼으로 출력하시오
+SELECT email, SUBSTRING_INDEX(email, "@", -1) AS email_domain -- 숫자에 따른 공백 
+FROM users;
+
+-- 3. 상품명에서 마지막 단어(공백 기준)를 추출하여 category_keyword컬럼으로 출력하시오
+SELECT product_name, SUBSTRING_INDEX(product_name, " ", -1) AS category_keyword -- 숫자에 따른 공백 
+FROM products;
+
+
+-- 수학함수
+-- ROUND : 반올림, CEIL : 올림, FLOOR : 내림
+SELECT ROUND(3.14);
+SELECT ROUND(1234.5678,2);
+SELECT ROUND(1234.5678,-2);
+
+SELECT CEIL(3.14);
+
+-- MOD 나머지 구하기
+SELECT MOD(10, 3);
+
+-- ABS : 절대값 
+SELECT ABS(-100);
+
+-- RAND : 0 ~ 1 난수 생성
+SELECT RAND();
+SELECT RAND() * 45;
+SELECT ROUND(RAND() * 45);
+
+SELECT user_id, ROUND(RAND() * 10000) recommended_code
+FROM users;
+
+-- 날짜함수
+SELECT NOW();
+SELECT CURDATE();
+SELECT CURTIME();
+
+-- DATEDIFF 날짜의 차이 계산
+SELECT DATEDIFF(CURDATE(), "2025-03-14");
+SELECT created_at, DATEDIFF(NOW(), created_at)
+FROM orders;
+ 
+ -- DATE_ADD 날짜에 더하기
+ SELECT DATE_ADD("2025-03-14", INTERVAL 3 DAY);
+ 
+ -- YEAR, MONTH, DAY
+ SELECT 
+	YEAR("2025-03-14") year, 
+    MONTH("2025-03-14") month, 
+    DAY("2025-03-14") day;
+    
+-- 실습2. 수학 함수, 날짜 함수(1)
+-- 1.상품 가격의 평균을 계산하고, 소수 첫째 자리까지 반올림하여 출력하시오.
+SELECT ROUND(AVG(price), 1) avg_price_rounded
+FROM products;
+
+-- 2. 최근 3일 이내에 주문된 주문건을 조회하고, 경과일을 출력하시오.
+SELECT order_id, created_at, 
+	DATEDIFF(NOW(), created_at) days_ago
+FROM ORDERS
+WHERE DATEDIFF(NOW(), created_at) <= 7;
+
+-- 3. 사용자 ID가 홀수이면서, 이름에 '김' 또는 '이'가 포함된 사용자만 조회하시오.
+SELECT * FROM users
+WHERE user_id % 2 = 1
+	AND (name LIKE '%김%' or name LIKE '%이%');
+
+ --  4. 배송완료된 주문 중, 주문일로부터 7일 이상 경과한 주문을 조회하시오
+SELECT order_id, order_status, created_at,
+       DATEDIFF(NOW(), created_at) AS days_since_order
+FROM orders
+WHERE order_status = '배송완료'
+  AND DATEDIFF(NOW(), created_at) >= 7;
+
+ 
