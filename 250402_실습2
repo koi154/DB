@@ -97,13 +97,13 @@ FROM ORDERS
 WHERE DATEDIFF(NOW(), created_at) <= 7;
 
 -- 3. 사용자 ID가 홀수이면서, 이름에 '김' 또는 '이'가 포함된 사용자만 조회하시오.
-SELECT * FROM users
-WHERE user_id % 2 = 1
+SELECT user_id, name, email FROM users
+WHERE mod(user_id, 2) = 1
 	AND (name LIKE '%김%' or name LIKE '%이%');
 
  --  4. 배송완료된 주문 중, 주문일로부터 7일 이상 경과한 주문을 조회하시오
 SELECT order_id, order_status, created_at,
-       DATEDIFF(NOW(), created_at) AS days_since_order
+       DATEDIFF(NOW(), created_at)  days_since_order
 FROM orders
 WHERE order_status = '배송완료'
   AND DATEDIFF(NOW(), created_at) >= 7;
