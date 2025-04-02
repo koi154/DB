@@ -1,0 +1,58 @@
+USE codingon_store_db;
+
+-- 고객 이름과 그 고객이 주문한 날짜를 출력하세요.
+SELECT c.name AS name, o.order_date
+FROM customers c
+	JOIN orders o
+	ON c.customer_id = o.customer_id;
+  
+-- 주문하지 않은 고객의 이름을 출력하세요.
+SELECT c.name AS name
+FROM customers c
+	LEFT JOIN orders o
+    ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+
+-- 고객 이름과 주문 ID를 출력하되, 고객 정보가 없는 주문도 포함하세요
+SELECT c.name AS name, order_id
+FROM orders o
+	LEFT JOIN customers c
+    ON o.customer_id = c.customer_id;
+
+-- 모든 고객과 모든 상품의 조합을 출력하세요.
+SELECT c.name AS customer_name, p.name AS product_name
+FROM customers c
+	CROSS JOIN products p;
+
+-- 직원 이름과 상사 이름을 출력하세요.(null 포함)
+SELECT e.name AS employee_name, m.name AS manager_name
+FROM employees e
+	LEFT JOIN employees m
+	on e.manager_id = m.employee_id;
+
+-- 모든 고객과 모든 주문 정보를 출력하세요.
+SELECT c.name AS customer_name, o.order_date
+FROM customers c
+	LEFT JOIN orders o 
+    ON c.customer_id = o.customer_id
+UNION
+SELECT c.name AS customer_name, o.order_date
+FROM customers c
+	RIGHT JOIN orders o 
+    ON c.customer_id = o.customer_id;
+
+-- 단가가 NULL이 아닌 상품에 대해 상품명과 총 판매 수량을 출력하세요.
+SELECT p.name, SUM(oi.quantity) AS total_quantity
+FROM products p
+	JOIN order_items oi 
+	ON p.product_id = oi.product_id
+WHERE oi.unit_price IS NOT NULL
+	GROUP BY p.name;
+    
+-- 고객 이름, 상품 이름, 구매 수량, 단가를 주문별로 출력하세요
+SELECT c.name AS customer_name, p.name, quantity, unit_price
+FROM customers c
+	JOIN orders o ON c.customer_id = o.customer_id
+	JOIN order_items oi ON o.order_id = oi.order_id
+	JOIN products p ON oi.product_id = p.product_id
+where unit_price IS NOT NULL;
