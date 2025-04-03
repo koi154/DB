@@ -1,0 +1,60 @@
+USE function_db;
+
+--  1. 상품 가격이 평균보다 높은 경우 '고가', 아니면 '저가'로 출력하시오.
+
+select product_name,ROUND(price, 0) AS price,
+	 IF(price > (SELECT AVG(price) FROM products), '고가', '저가') AS price_grade
+FROM products;
+
+--  2. 이메일이 NULL인 경우 '이메일 미입력'으로 표시하시오.
+select user_id, name,
+	IFNULL(email, '이메일 미입력') checked_email
+FROM users;
+		
+        
+--  3. 배송완료된 주문 중, 5일 이상 지난 주문은 '후기 요청', 그 외는 '배송 확인'으로 표시하시오.(case 사용)
+select order_id, order_status, created_at,
+	-- DATEDIFF(now(), created_at) days_ago,
+	CASE
+    WHEN order_status = '배송완료' AND DATEDIFF(NOW(), created_at) >= 5 THEN '후기 요청'
+    WHEN order_status = '배송완료' THEN '배송 확인'
+    ELSE '대상 아님'
+  END AS followup_status
+FROM orders;
+
+USE codingon_store_db;
+-- 1. 카테고리가 '전자기기'인 상품 중, 가장 가격이 높은 상품의 이름과 가격을 조회하시오
+select name, price
+FROM products
+WHERE category = '전자기기' 
+	AND price = (
+    SELECT MAX(price) FROM products 
+    WHERE category = '전자기기'
+    );
+    
+--  2. 결제가 '신용카드'로 이루어진 주문을 한 고객의 이름과 ID를 조회하시오.
+SELECT name, customer_id
+FROM customers
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    WHERE payment_method = '신용카드'
+);
+
+-- 3. 1회 이상 주문한 고객 중 가장 최근에 주문한 고객의 이름과 주문일을 출력하시오.
+SELECT c.name, MAX(o.order_date) AS order_date
+FROM orders o
+	JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.customer_id
+	ORDER BY MAX(o.order_date) DESC
+LIMIT 1;
+
+-- 4. 서브쿼리를 사용하여, 주문별 총 결제 금액(수량 ×단가 ×할인 반영 합계)이 30만 원 이상인 주문의 주문 ID와 금액을 출력하시오.
+SELECT order_id, total_price
+FROM (
+    SELECT oi.order_id, SUM(oi.quantity * p.price * (1 - oi.discount_rate / 100)) AS total_price
+    FROM order_items oi
+    JOIN products p ON oi.product_id = p.product_id
+    GROUP BY oi.order_id
+) total_prices
+WHERE total_prices.total_price >= 300000;
