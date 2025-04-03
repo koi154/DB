@@ -1,0 +1,112 @@
+select CONCAT( "내일 ", "임시공휴일 ", "이면 좋겠다");
+
+select DATE_FORMAT(now(), "%Y년%m월%d일");
+select DATE_FORMAT(now(), "%Y-%m-%d");
+
+-- IF
+USE codingon_db;
+
+select name, gender,
+	IF(gender = "남", "Male", "Female") gender_eng
+FROM student;
+
+USE codingon_store_db;
+
+select name,price,
+	IF(price >= 10000, "비쌈", "저렴") price_level
+FROM products;
+
+-- IFNULL
+SELECT * FROM customers;
+
+SELECT name, IFNULL(phone, "전화번호 없음")
+FROM customers;
+
+SELECT name, IFNULL(membership_level, "Iron")
+FROM customers;
+
+-- NULLIF
+SELECT order_id, order_status,
+	nullif(order_status, "처리중") order_status_edit
+FROM orders;
+    
+-- case
+SELECT order_id, order_status,
+	CASE order_status
+		WHEN "완료" THEN "결제가 완료됐어요"
+        WHEN "배송중" THEN "배송중이에요"
+        WHEN "처리중" THEN "주문이 처리되고 있어요"
+        ELSE "상태를 알 수 없어요"
+	END status_label
+FROM orders;
+
+USE function_db;
+SELECT order_id, order_date,
+	DATEDIFF(now(), order_date) days_ago,
+    CASE
+		WHEN DATEDIFF(now(), order_date) <= 3 THEN "최근 주문"
+        WHEN DATEDIFF(now(), order_date) <= 7 THEN "지난주 주문"
+        ELSE "오래된 주문"
+	END order_age
+FROM orders;
+        
+UPDATE users SET email = NULL WHERE user_id IN (3, 7);
+
+
+USE codingon_store_db;
+-- 암시적 형변환
+SELECT '100' + '200';
+SELECT 100 + '200';
+
+-- 문자열 결합
+SELECT CONCAT ('100', '200');
+SELECT CONCAT (100,'200');
+
+-- 명시적 형변환 : CAST, CONVERT
+SELECT CAST('123' AS SIGNED);
+SELECT CAST(3.14 AS CHAR);
+SELECT CAST("2025&4&3" AS DATE);
+
+
+-- WHERE절 서브쿼리
+SELECT name, price
+FROM products
+WHERE price > (
+	SELECT AVG(price) FROM products
+);
+
+
+-- FROM절 서브쿼리
+-- 카테고리별 평균 가격을 구하고, 평균이 100,000원 이상인 카테고리만 출력
+
+SELECT category,avg_price
+FROM (
+	SELECT category, AVG(price) avg_price
+    FROM products
+		GROUP BY category
+    ) category_product
+WHERE avg_price > 30000;
+    
+-- SELECT절 서브쿼리
+-- 각 고개의 이름과 해당 고객의 총 주문 수를 함께 출력
+SELECT name,
+	( 
+		SELECT count(*)
+        FROM orders
+        WHERE customer_id = customers.customer_id
+	) order_count
+FROM customers;
+
+select name, count(order_id)
+FROM customers c
+	LEFT JOIN Orders o ON c.customer_id = o.customer_id
+group by name;
+
+-- 1. 뷰 생성 및 조회
+USE codingon_store_db;
+CREATE VIEW v_customers AS
+	SELECT customer_id, name FROM customers;
+
+
+SELECT * FROM v_customers;
+
