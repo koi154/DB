@@ -1,0 +1,66 @@
+USE codingon_store_db;
+
+-- VIEW 생성 예시
+CREATE VIEW v_customers_2 AS
+SELECT customer_id, name FROM customers;
+
+SELECT * FROM v_customers_2;
+
+-- VIEW 생성 예시
+CREATE VIEW v_customers_orders AS
+SELECT c.name, o.order_id, o.order_date
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+
+SELECT * FROM v_customers_orders;
+
+-- VIEW 수정 만들거나 해제
+CREATE OR REPLACE VIEW v_customers_orders AS
+SELECT c.name 이름, o.order_id 주문아이디, o.order_date 주문일
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+
+SELECT * FROM v_customers_orders;
+
+-- VIEW 수정 수정
+ALTER VIEW v_customers_orders AS
+SELECT c.name 이름, email 이메일, o.order_id "주문 아이디", o.order_date "주문 일" -- 띄워쓰기는 " " 사용
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id;
+
+SELECT * FROM v_customers_orders;
+
+-- SELECT 유의사항
+SELECT `주문 아이디`FROM v_customers_orders;
+
+-- 뷰의구조 및 정의 확인
+DESC v_customers_orders;
+SHOW create VIEW v_customers_orders;
+
+-- view로 데이터 입력
+create OR REPLACE VIEW v_customers AS
+SELECT customer_id, name FROM customers
+Where customer_id < 20
+WITH CHECK OPTION;
+
+
+UPdate v_customers
+SET name = "홍길남"
+WHERE  customer_id = 1;
+
+INSERT INTO v_customers (customer_id, name)
+VALUES (10, "테스트");
+
+INSERT INTO v_customers
+VALUES (11, "테스트2");
+
+INSERT INTO v_customers
+VALUES (30, "테스트3");
+
+SELECT * FROM customers;
+SELECT * FROM v_customers;
+
+-- view 삭제
+DROP View v_customers;
+
+
