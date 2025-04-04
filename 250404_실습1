@@ -1,0 +1,44 @@
+USE codingon_store_db;
+
+-- 1. 고객 주문 내역을 나타내는 v_order_summary 뷰를 생성하세요.
+CREATE VIEW v_order_summary AS
+	SELECT 
+		c.customer_id,
+		c.name customer_name,
+		p.name product_name,
+		oi.quantity,
+		o.order_date
+	FROM 
+		customers c
+	JOIN 
+		orders o ON c.customer_id = o.customer_id
+	JOIN 
+		order_items oi ON o.order_id = oi.order_id
+	JOIN 
+		products p ON oi.product_id = p.product_id;
+    
+-- 2.생성한 뷰를 조회하여 고객 이름과 주문일 기준으로 정렬해보세요. 주문일은 내림차순으로 정렬합니다.
+SELECT * FROM v_order_summary
+
+ORDER BY customer_name ASC, order_date DESC;
+
+-- 3. Step 3. 뷰에 order_status 컬럼을 추가한 후, 주문 상태가 '완료'인 주문만 포함되도록 뷰를 수정하세요
+CREATE OR REPLACE VIEW v_order_summary AS
+	SELECT 
+		c.customer_id,
+		c.name customer_name,
+		p.name product_name,
+		oi.quantity,
+		o.order_date,
+        o.order_status
+	FROM 
+		customers c
+	JOIN 
+		orders o ON c.customer_id = o.customer_id
+	JOIN 
+		order_items oi ON o.order_id = oi.order_id
+	JOIN 
+		products p ON oi.product_id = p.product_id
+	WHERE order_status = "완료";
+
+SELECT * FROM v_order_summary;
