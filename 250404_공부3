@@ -1,0 +1,89 @@
+USE index_db;
+
+CREATE TABLE table1 (
+	col1 INT PRIMARY KEY,
+    col2 INT,
+    col3 INT
+);
+SHOW INDEX FROM table1;
+
+CREATE TABLE table2 (
+	col1 INT PRIMARY KEY,
+    col2 INT UNIQUE,
+    col3 INT UNIQUE
+);
+SHOW INDEX FROM table2;
+
+CREATE TABLE cluster (
+	mem_id CHAR(8),
+	mem_name VARCHAR(10)
+);
+
+INSERT INTO cluster VALUES('NMX', '엔믹스');
+INSERT INTO cluster VALUES('LSR', '르세라핌');
+INSERT INTO cluster VALUES('IVE', '아이브');
+INSERT INTO cluster VALUES('BBZ', '베이비몬스터');
+INSERT INTO cluster VALUES('GID', '(여자)아이들');
+INSERT INTO cluster VALUES('TRP', '트리플에스');
+INSERT INTO cluster VALUES('ESP', '에스파');
+INSERT INTO cluster VALUES('BLK', '블랙핑크');
+INSERT INTO cluster VALUES('QWR', 'QWER');
+INSERT INTO cluster VALUES('ILL', '아일릿');
+
+SELECT * FROM cluster;
+
+ALTER TABLE cluster ADD constraint 
+PRIMARY KEY (mem_id);
+
+SELECT * FROM cluster;
+
+CREATE TABLE second (
+	mem_id CHAR(8),
+	mem_name VARCHAR(10)
+);
+
+INSERT INTO second VALUES('NMX', '엔믹스');
+INSERT INTO second VALUES('LSR', '르세라핌');
+INSERT INTO second VALUES('IVE', '아이브');
+INSERT INTO second VALUES('BBZ', '베이비몬스터');
+INSERT INTO second VALUES('GID', '(여자)아이들');
+INSERT INTO second VALUES('TRP', '트리플에스');
+INSERT INTO second VALUES('ESP', '에스파');
+INSERT INTO second VALUES('BLK', '블랙핑크');
+INSERT INTO second VALUES('QWR', 'QWER');
+INSERT INTO second VALUES('ILL', '아일릿');
+
+SELECT * FROM second;
+
+ALTER TABLE second ADD constraint 
+UNIQUE (mem_id);
+
+SELECT * FROM second;
+
+select * FROM member;
+
+CREATE INDEX idx_member_addr
+	ON member(addr);
+
+SHOW INDEX FROM member;
+analyze table member;
+SHOW TABLE STATUS LIKE 'member';
+
+CREATE  INDEX idx_member_num
+ON member(mem_number);  -- 지정못함 고유번호
+
+CREATE UNIQUE INDEX idx_member_name
+ON member(mem_name); 
+
+SHOW INDEX FROM member;
+
+SELECT mem_id, mem_name, addr FROM member;
+
+SELECT mem_id, mem_name, addr FROM member
+WHERE mem_name = "블랙핑크";
+
+SELECT mem_id, mem_name, mem_number FROM member
+WHERE mem_number >=7;
+
+DROP INDEX idx_member_num ON member;
+
