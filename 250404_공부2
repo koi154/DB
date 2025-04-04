@@ -1,0 +1,56 @@
+-- FK연습
+DROP DATABASE IF EXISTS test_db;
+CREATE DATABASE tets_db;
+USE test_db;
+
+create TABLE departments (
+	department_id INT primary KEY,
+    department_name VARCHAR(50)
+);
+
+CREATE TABLE employee_cascade (
+	employee_id INT primary KEY,
+    name VARCHAR(50),
+    departmnet_id INT,
+    
+    constraint cascade_fk
+    foreign key (department_id)
+    references departments(department_id)
+	ON DELETE cascade
+);
+
+CREATE TABLE employee_setnull (
+	employee_id INT primary KEY,
+    name VARCHAR(50),
+    departmnet_id INT,
+    
+    constraint setnull_fk
+    foreign key (department_id)
+    references departments(department_id)
+	ON DELETE SET NULL
+);
+
+INSERT INTO departmnets VALUES (1, "교육팀");
+INSERT INTO departmnets VALUES (2, "개발팀");
+ 
+SELECT * FROM departmnets;
+
+INSERT INTO employee_cascade VALUES
+(1, "김다운",1),
+(2, "최창일",2);
+
+SELECT * FROM employee_cascade;
+
+INSERT INTO employee_setnull VALUES
+(1, "김소은",1),
+(2, "이혜린",2);
+
+SELECT * FROM employee_setnull;
+
+DELETE FROM departments
+WHERE departments_id = 1;
+
+SELECT * FROM departmnets;
+SELECT * FROM employee_cascade;
+SELECT * FROM employee_setnull;
+
