@@ -1,0 +1,67 @@
+USE codingon_store_db;
+
+-- 트리거와 로그 테이블 초기화
+DROP TRIGGER IF EXISTS trg_after_insert_orders;
+DROP TABLE IF EXISTS order_logs;
+
+-- 로그 테이블 재생성
+CREATE TABLE order_logs (
+	log_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    log_message VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 트리거 생성
+DELIMITER //
+CREATE TRIGGER trg_after_insert_orders
+AFTER INSERT ON orders
+FOR EACH ROW
+BEGIN
+	INSERT INTO order_logs (order_id, log_message)
+    VALUES (NEW.order_id, CONCAT("신규 주문이 생성되었습니다. 상태: ", NEW.order_status));
+END //
+DELIMITER ;
+
+-- orders 테이블 구조 확인 후 맞게 입력
+-- 예: order_id가 AUTO_INCREMENT이고 나머지 컬럼 3개일 경우
+INSERT INTO orders (customer_id, order_date, order_status)
+VALUES (1, NOW(), "처리중");
+
+-- 로그 확인
+SELECT * FROM order_logs;
+
+DROP TABLE IF EXISTS trigger_table;
+-- 2. 삭제 트리거 생성
+USE index_db;
+CREATE TABLE trigger_table (
+	id INT,
+    txt VARCHAR(10)
+);
+
+INSERT INTO trigger_table VALUES (1, "르세라핌");
+INSERT INTO trigger_table VALUES (2, "에스파");
+INSERT INTO trigger_table VALUES (3, "딥퍼플");
+
+DROP TABLE IF EXISTS delete_logs;
+
+CREATE TABLE delete_logs (
+	log_id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT,
+    log_message VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TRIGGER IF EXISTS trg_before_delete;
+DELIMITER //
+CREATE TRIGGER trg_before_delete
+BEFORE DELETE ON trigger_table
+FOR EACH ROW
+BEGIN
+	INSERT INTO delete_logs (id, log_message)
+    VALUES (OLD.id, CONCAT("데이터가 삭제되었습니다. 이름: ", OLD.txt));
+END //
+DELIMITER ;
+
+DELETE FROM trigger_table WHERE id = 3;
+SELECT * FROM delete_logs;
