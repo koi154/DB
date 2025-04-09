@@ -1,0 +1,175 @@
+USE codingon_store_db; 
+
+-- 1. 프로시저 생성
+DELIMITER // 
+
+CREATE procedure my_proc()
+BEGIN
+	SELECT "SQL은 재밌어";
+END //
+
+DELIMITER ; 
+
+CALL my_proc();
+
+-- 프로시저 생성2
+DELIMITER //
+CREATE PROCEDURE user_proc()
+BEGIN
+	SELECT * FROM customers;
+END //
+DELIMITER ;
+CALL user_proc();
+
+-- 2. 프로시저 안에서 변수 선언
+DELIMITER //
+CREATE PROCEDURE discount_example()
+BEGIN	
+	DECLARE price INT;
+    DECLARE discounted INT;
+    
+    SET price = 10000;
+    SET discounted = price * 0.9;
+    
+    SELECT price AS 원래가격, discounted AS 할인적용된가격;
+END //
+DELIMITER ;
+CALL discount_example();
+
+-- 3.프로시저 삭제
+DROP procedure discount_example;
+
+-- 4.프로시저 목록 조회
+SHOW procedure STATUS
+WHERE Db = "codingon_store_db";
+
+-- 5.프로시저 파라미터(매개변수)
+-- IN, OUT, INOUT
+-- 5-1. IN
+DELIMITER // 
+create procedure get_customer_by_id(
+	IN customerId INT
+)
+BEGIN
+	SELECT * FROM customers WHERE customer_id = customerId;
+END //
+DELIMITER ;
+CALL get_customer_by_id(3);
+
+-- 5-2. OUT
+DELIMITER // 
+create procedure get_total_orders(
+	OUT total INT
+)
+BEGIN
+	SELECT COUNT(*) INTO total FROM orders;
+END //
+DELIMITER ;
+
+SET @order_count = 0;
+CALL get_total_orders(@order_count);
+SELECT @order_count;
+
+-- 5-3. INOUT
+DROP procedure IF EXISTS add_bonus;
+
+DELIMITER // 
+create procedure add_bonus(
+	INOUT salary INT
+)
+BEGIN
+	SET salary = salary + 1000000;
+END //
+DELIMITER ;
+
+SET @mysalary = 3000000;
+CALL add_bonus(@mysalary);
+SELECT @mysalary;
+
+-- 6. 조건문
+USE index_db;
+
+DROP procedure IF EXISTS ifelse_proc;
+
+DELIMITER // 
+create procedure ifelse_proc(
+	IN memName VARCHAR(10)
+)
+BEGIN
+	DECLARE debutYear INT;
+    SELECT YEAR(debut_date) INTO debutYear FROM member
+		WHERE mem_name = memName;
+        
+	IF (debutYear >= 2022) THEN
+		SELECT "신인가수" AS "메세지";
+	ELSE 
+		SELECT "고창가수" AS "메세지";
+	END IF;
+END //
+DELIMITER ;
+
+CALL ifelse_proc("블랙핑크");
+CALL ifelse_proc("아일릿");
+
+-- 7. 반복문 + 프로시져
+DELIMITER //
+CREATE PROCEDURE sum_to_n (
+	IN n INT,
+    OUT total INT
+)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+    SET total = 0;
+    
+    WHILE i <= n DO
+		SET total = total + i;
+        SET i = i + 1;
+	END WHILE;
+END //
+DELIMITER ;
+
+SET @sum_var = 0;
+CALL sum_to_n(10, @sum_var);
+SELECT @sum_var;
+
+-- 8
+-- 에러가 나는 상황
+-- SET @table = 'customers';
+-- SELECT = FROM @table  
+
+SET @sql = 'SELECT * FROM customers LIMIT 5';
+PREPARE my_query FROM @sql;
+EXECUTE my_query;
+DEALLOCATE PREPARE my_query;
+
+-- 동적 SQL 
+DROP procedure IF EXISTS select_top_from_table;
+DELIMITER // 
+CREATE PROCEDURE select_top_from_table(
+	IN table_name VARCHAR(50)
+)
+BEGIN
+	SET @query_text = CONCAT('SELECT * FROM ', table_name, ' LIMIT 5'); 
+    PREPARE dynamic_sql FROM @query_text;
+    EXECUTE dynamic_sql;
+    DEALLOCATE PREPARE dynamic_sql;
+END //
+
+DELIMITER ;
+
+CALL select_top_from_table('customers');
+CALL select_top_from_table('orders');
+
+-- 9. 사용자 정의 함수
+DELIMITER //
+CREATE FUNCTION add_numbers(a INT, b INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+	RETURN a + b;
+END //
+DELIMITER ; 
+
+SELECT add_numbers(10,20)
+
+        
