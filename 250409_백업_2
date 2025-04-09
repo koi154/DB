@@ -1,0 +1,111 @@
+USE codingon_store_db;
+
+-- 2. 특정 고객이 주문한 전체 주문 건수를 반환하는 프로시저를 작성하세요.
+DELIMITER //
+CREATE PROCEDURE count_orders_by_customer(
+	IN customerId INT,
+    OUT totalOrders INT
+)
+BEGIN
+	SELECT COUNT(*) INTO totalOrders FROM orders
+    WHERE customer_id = customerId;
+END //
+DELIMITER ;
+
+SET @totalOrders = 0;
+CALL count_orders_by_customer(3, @totalOrders);
+SELECT @totalOrders AS total_orders;
+
+-- 3. 특정 고객의 가장 최근 주문 건의 배송비에 3,000원을 추가하여 프로시저를 작성하세요.
+DELIMITER //
+CREATE PROCEDURE add_bonus_to_latest_delivery_fee(
+	IN customerId INT,
+    INOUT latestFee INT
+)
+BEGIN
+    SELECT delivery_fee INTO latestFee
+    FROM orders
+    WHERE customer_id = customerId
+    order by order_date DESC
+    LIMIT 1;
+    
+    SET latestFee= IFNULL(latestFee,0) + 3000;
+END //
+DELIMITER ;
+
+SET @fee = 0;
+CALL add_bonus_to_latest_delivery_fee(6,@fee);
+SELECT @fee;
+
+
+-- 1. 고객의 등급에 따라 할인율을 반환하는 스토어드 프로시저를 작성하세요.
+USE codingon_store_db;
+DROP procedure IF EXISTS get_discount_rate
+
+DELIMITER // 
+create procedure get_discount_rate(
+	IN level VARCHAR(20),
+    OUT discount DECIMAL(3,2)
+)
+BEGIN
+	 IF level = 'VIP' THEN
+        SET discount = 0.20;
+    ELSEIF level = 'Gold' THEN
+        SET discount = 0.10;
+    ELSE
+        SET discount = 0.00;
+    END IF;
+END //
+DELIMITER ;
+
+SET @rate = 0.00;
+CALL get_discount_rate('VIP', @rate);
+SELECT @rate AS discount_rate;
+CALL get_discount_rate('Silver', @rate);
+SELECT @rate AS discount_rate;
+
+-- 2. 고객의 등급에 따라 할인율을 반환하는 스토어드 프로시저를 작성하세요.
+DROP procedure IF EXISTS print_customer_names
+DELIMITER //
+CREATE PROCEDURE print_customer_names (
+	IN repeat_count INT
+)
+BEGIN
+	DECLARE i INT DEFAULT 0;
+    DECLARE total int;
+    SELECT count(*) INTO total FROM customers;
+    SET repeat_count = LEAST(repeat_count, total);
+    
+    WHILE i < repeat_count DO 
+		SELECT name FROM customers
+        ORDER BY customer_id
+        LIMIT i, 1;
+        
+        SET i = i+1;
+	END WHILE;
+END //
+DELIMITER ;
+
+CALL print_customer_names(3);
+
+
+-- 3고객의 생년월일(DATE 형식)을 입력받아, 현재 기준으로 만 나이를 계산해 반환하는 함수를 작성하세요.
+USE codingon_store_db;
+
+DELIMITER //
+CREATE FUNCTION calculate_age(birth_date DATE)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+	DECLARE age INT;
+    
+    SET age = YEAR(CURDATE()) - YEAR(birth_date);
+    
+    RETURN age;
+    
+END //
+DELIMITER ;
+SELECT name, calculate_age(birth_date) 현재나이 
+FROM customers
+WHERE birth_date IS NOT NULL;
+
